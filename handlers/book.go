@@ -2,52 +2,35 @@ package handlers
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/gfmanica/book-search/services"
 )
-
-type EnrichRequest struct {
-	ISBN string `json:"isbn"`
-}
 
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
 func EnrichBookHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 
-		json.NewEncoder(w).Encode(ErrorResponse{Error: "Método não permitido"})
+		json.NewEncoder(w).Encode(ErrorResponse{Error: "Método não permitido. Use GET."})
 
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
+	isbn := r.URL.Query().Get("isbn")
 
-	if err != nil {
+	if isbn == "" {
 		w.WriteHeader(http.StatusBadRequest)
 
-		json.NewEncoder(w).Encode(ErrorResponse{Error: "Erro ao ler o corpo da requisição"})
+		json.NewEncoder(w).Encode(ErrorResponse{Error: "Parâmetro 'isbn' é obrigatório na query string."})
 
 		return
 	}
 
-	defer r.Body.Close()
-
-	var req EnrichRequest
-
-	if err := json.Unmarshal(body, &req); err != nil || req.ISBN == "" {
-		w.WriteHeader(http.StatusBadRequest)
-
-		json.NewEncoder(w).Encode(ErrorResponse{Error: "JSON inválido ou ISBN ausente"})
-
-		return
-	}
-
-	book, err := services.FetchBookFromGoogle(req.ISBN)
+	book, err := services.FetchBookFromGoogle(isbn)
 
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)

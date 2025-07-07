@@ -1,6 +1,6 @@
 # Microsserviço de Enriquecimento de Dados de Livros
 
-Este microsserviço recebe um ISBN via requisição HTTP POST, consulta a API do Google Books e retorna os dados estruturados do livro.
+Este microsserviço recebe um ISBN via requisição HTTP GET, consulta a API do Google Books e retorna os dados estruturados do livro.
 
 ## Como rodar
 
@@ -12,13 +12,7 @@ O serviço ficará disponível em `http://localhost:8080/enrich`.
 
 ## Exemplo de requisição
 
-POST `/enrich`
-
-```json
-{
-  "isbn": "9788532530783"
-}
-```
+GET `/enrich?isbn=9788532530783`
 
 ## Exemplo de resposta
 
